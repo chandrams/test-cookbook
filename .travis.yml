@@ -12,6 +12,11 @@ addons:
     - chef-stable-trusty
     packages:
     - chefdk
+    
+before_install:
+    - gem --version
+    - gem install bundler  
+    - gem install test-kitchen
 
 script: 
     - foodcritic recipes

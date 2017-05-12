@@ -25,7 +25,7 @@ before_install:
 script: 
     - foodcritic recipes
     - kitchen version
-    - bundle exec kitchen test
+    - kitchen test
     - ls -l /usr/lib/jvm
     
  

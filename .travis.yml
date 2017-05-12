@@ -22,5 +22,8 @@ script:
     - foodcritic recipes
     - kitchen version
     - kitchen list
+    - kitchen init
+    - kitchen test
     - ls -l /usr/lib/jvm
+    
  

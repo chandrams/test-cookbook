@@ -13,6 +13,8 @@ addons:
     packages:
     - chefdk
     
+services: docker
+    
 before_install:
     - gem --version
     - gem install bundler  
@@ -23,7 +25,7 @@ before_install:
 script: 
     - foodcritic recipes
     - kitchen version
-    - kitchen test
+    - bundle exec kitchen test
     - ls -l /usr/lib/jvm
     
  

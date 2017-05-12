@@ -15,3 +15,7 @@ addons:
 
 script: 
     - foodcritic recipes
+    - kitchen version
+    - kitchen list
+    - ls -l /usr/lib/jvm
+ 

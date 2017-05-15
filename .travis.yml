@@ -21,9 +21,14 @@ before_install:
     - gem install test-kitchen
     - gem install vagrant-wrapper
     - gem install kitchen-vagrant
+  
+install:
+    - sudo dpkg -i vagrant_1.2.2_x86_64.deb
+    - sudo vagrant plugin install vagrant-plugin-bundler
 
 script: 
     - foodcritic recipes
+    - sudo vagrant up
     - kitchen version
     - kitchen test
     - ls -l /usr/lib/jvm

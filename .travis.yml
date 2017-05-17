@@ -16,10 +16,12 @@ before_install:
   - sudo usermod -p "`openssl passwd -1 'travis'`" travis
 
 script:
-  - bundle exec rake
   - bundle exec kitchen verify ubuntu
 
 branches:
   only:
   - master    
+  
+after_failure:
+  - cat /home/travis/builds/chandrams/test-cookbook/.kitchen/logs/kitchen.log
  

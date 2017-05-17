@@ -31,6 +31,8 @@ script:
   - kitchen -v
   - chef gem list inspec
   - bundle exec kitchen verify ubuntu
+  - ls /usr/lib/jvm
+  - /usr/lib/jvm/java-8-ibm/bin/java -version
 
 branches:
   only:

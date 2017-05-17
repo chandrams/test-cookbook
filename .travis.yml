@@ -36,7 +36,7 @@ branches:
   only:
   - master    
   
-after_failure:
+after_script:
   - cat /home/travis/builds/chandrams/test-cookbook/.kitchen/logs/kitchen.log
   - ls /home/travis/builds/chandrams/test-cookbook
- 
+  - pwd

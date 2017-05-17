@@ -19,6 +19,7 @@ before_install:
 script:
   - chef -v
   - kitchen -v
+  - chef gem list inspec
   - bundle exec kitchen verify ubuntu
 
 branches:
@@ -27,4 +28,5 @@ branches:
   
 after_failure:
   - cat /home/travis/builds/chandrams/test-cookbook/.kitchen/logs/kitchen.log
+  - ls /home/travis/builds/chandrams/test-cookbook
  

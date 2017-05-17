@@ -13,6 +13,8 @@ addons:
     packages:
     - chefdk
     
+bundler_args: --without='vagrant'
+    
 services: docker
     
 before_install:

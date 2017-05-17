@@ -14,8 +14,11 @@ rvm:
 
 before_install:
   - sudo usermod -p "`openssl passwd -1 'travis'`" travis
+  - gem install kitchen-inspec
 
 script:
+  - chef -v
+  - kitchen -v
   - bundle exec kitchen verify ubuntu
 
 branches:

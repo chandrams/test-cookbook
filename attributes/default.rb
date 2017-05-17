@@ -1,5 +1,3 @@
-include_attribute 'travis_build_environment'
-
 default['travis_java']['arch'] = 'i386'
 default['travis_java']['arch'] = 'amd64' if kernel['machine'] =~ /x86_64/
 

@@ -11,3 +11,4 @@ action :create
 end
 
 execute "cat ./hello.txt"
+execute "pwd"

@@ -11,6 +11,14 @@ env:
 
 rvm:
   - 2.1.7
+  
+addons:
+  apt:
+    sources:
+      - chef-stable-trusty
+    packages:
+      - chefdk
+
 
 before_install:
   - sudo usermod -p "`openssl passwd -1 'travis'`" travis

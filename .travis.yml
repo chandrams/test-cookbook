@@ -1,34 +1,25 @@
-language: generic
+language: ruby
 dist: trusty
-sudo: false
+sudo: required
 
 env:
   global:
-  - PATH="/opt/chefdk/bin:/opt/chef/bin:/opt/chef/embedded/bin:/opt/chefdk/embedded/bin:$PATH"
+    - machine_user=travis
+    - machine_pass=travis
+    - machine_port=22
+    - KITCHEN_YAML=.kitchen.travis.yml
 
-addons:
-  apt:
-    sources:
-    - chef-stable-trusty
-    packages:
-    - chefdk
-    
-bundler_args: --without='vagrant'
-    
-services: docker
-    
+rvm:
+  - 2.1.7
+
 before_install:
-    - gem --version
-    - gem install bundler  
-    - gem install test-kitchen
-    - gem install vagrant-wrapper
-    - gem install kitchen-vagrant
-  
-script: 
-    - foodcritic recipes
-    - sudo vagrant up
-    - kitchen version
-    - kitchen test
-    - ls -l /usr/lib/jvm
-    
+  - sudo usermod -p "`openssl passwd -1 'travis'`" travis
+
+script:
+  - bundle exec rake
+  - bundle exec kitchen verify ubuntu
+
+branches:
+  only:
+  - master    
  

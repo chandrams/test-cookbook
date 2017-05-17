@@ -20,4 +20,5 @@ suites:
   - name: default
     run_list:
        recipe[test::default]
+       recipe[test::ibmjava8]
        

@@ -17,10 +17,10 @@ verifier:
   name: inspec
 
 suites:
-  - name: IBM Java8
+  - name: ibmjava8
     run_list:
       recipe[test::ibmjava8]
-  - name: IBM Java9
+  - name: ibmjava9
     run_list:
       recipe[test::ibmjava9]
       

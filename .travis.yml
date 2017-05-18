@@ -33,12 +33,8 @@ script:
   - bundle exec kitchen verify ubuntu
   - ls /usr/lib/jvm
   - /usr/lib/jvm/java-8-ibm/bin/java -version
+  - /usr/lib/jvm/java-9-ibm/bin/java -version
 
 branches:
   only:
   - master    
-  
-after_script:
-  - cat /home/travis/builds/chandrams/test-cookbook/.kitchen/logs/kitchen.log
-  - ls /home/travis/builds/chandrams/test-cookbook
-  - pwd

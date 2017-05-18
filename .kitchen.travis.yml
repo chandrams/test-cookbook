@@ -19,7 +19,6 @@ verifier:
 suites:
   - name: default
     run_list:
+      recipe[test::ibmjava8]
       recipe[test::ibmjava9]
-    verifier:
-      inspec_tests:
-        - path: path/to/some/local/tests
+      

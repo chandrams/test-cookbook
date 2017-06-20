@@ -1,6 +1,7 @@
 require 'yaml'
 require 'open-uri'
 require 'fileutils'
+require 'digest'
 
 module TravisJava
   module IBMJava

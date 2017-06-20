@@ -7,9 +7,11 @@ module TravisJava
     def install_ibmjava(version)
       attribute_key = "ibmjava" + version.to_s
       java_home = ::File.join(node['travis_java']['jvm_base_dir'], node['travis_java'][attribute_key]['jvm_name'])
-	  arch = node['travis_java']['arch']
-	  if arch == "amd64" 
-	     arch = "x86_64"
+      arch = node['travis_java']['arch']
+      if arch == "amd64" then
+        arch = "x86_64"
+        puts arch
+      end
       index_yml = ::File.join("https://public.dhe.ibm.com/ibmdl/export/pub/systems/cloud/runtimes/java/meta/sdk",
                               node['travis_java']['ibmjava']['platform'], arch, "index.yml")
 

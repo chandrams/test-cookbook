@@ -77,7 +77,8 @@ module TravisJava
       finalversion
     end
     
-    def check_sha(file, checksum)
+    def check_sha(filename, checksum)
+      file = File.open(filename, 'r')
       raise 'sha256 checksum does not match' unless Digest::SHA256.hexdigest(File.read(file.path)) == checksum
     end    
   end

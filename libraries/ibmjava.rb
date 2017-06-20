@@ -56,9 +56,9 @@ module TravisJava
         action :delete
       end
       
-      file installer do
-        action :delete
-      end
+      # file installer do
+      #  action :delete
+      # end
     end
 
     # This method returns a hash containing the uri and checksum of the latest release by parsing the index.yml file

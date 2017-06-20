@@ -34,6 +34,7 @@ script:
   - ls /usr/lib/jvm
   - /usr/lib/jvm/java-8-ibm-amd64/bin/java -version
   - /usr/lib/jvm/java-9-ibm-amd64/bin/java -version
+  - ls /tmp
 
 branches:
   only:

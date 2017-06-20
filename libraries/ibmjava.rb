@@ -7,13 +7,8 @@ module TravisJava
     def install_ibmjava(version)
       attribute_key = "ibmjava" + version.to_s
       java_home = ::File.join(node['travis_java']['jvm_base_dir'], node['travis_java'][attribute_key]['jvm_name'])
-      arch = node['travis_java']['arch']
-      if arch == "amd64"
-        arch = "x86_64"       
-      end
-      puts arch
       index_yml = ::File.join("https://public.dhe.ibm.com/ibmdl/export/pub/systems/cloud/runtimes/java/meta/sdk",
-                              node['travis_java']['ibmjava']['platform'], arch, "index.yml")
+                              node['travis_java']['ibmjava']['platform'], node['travis_java']['ibmjava']['arch'], "index.yml")
 
       # Obtain the uri of the latest IBM Java build for the specified version from index.yml
       entry = find_version_entry(index_yml, version)
@@ -28,7 +23,7 @@ module TravisJava
     # @return - None
 
     def download_build(entry, java_home, version)
-      installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
+      installer = File.join(Dir.tmpdir, "ibm-java" + version.to_s + "-installer")
       properties = File.join(Dir.tmpdir, "installer.properties")
 
       # Download the IBM Java installer from source url to the local machine
@@ -43,18 +38,14 @@ module TravisJava
 
       # Create installer properties for silent installation
       file properties do
-        content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
+        content "USER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
       end
 
       # Install IBM Java build
-      execute "#{installer} -i silent -f #{properties}"
+      execute "#{installer} -i silent"
       execute "#{java_home}/bin/java -version"
 
       file properties do
-        action :delete
-      end
-      
-      file installer do
         action :delete
       end
     end
@@ -68,11 +59,11 @@ module TravisJava
       finalversion = nil
       version = '1.'.concat(version.to_s) unless version.to_s.include?('.')
       yaml_content = open(url.to_s, &:read)
-      entries = YAML.safe_load(yaml_content)
-      entries.each do |entry|
-        finalversion = entry[1] if entry[0].to_s.start_with?(version.to_s)
+      thing = YAML.safe_load(yaml_content)
+      thing.each do |thi|
+        finalversion = thi[1] if thi[0].to_s.start_with?(version.to_s)
       end
       finalversion
     end
   end
-
+end

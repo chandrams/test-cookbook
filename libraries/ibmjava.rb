@@ -17,6 +17,8 @@ module TravisJava
       entry = find_version_entry(index_yml, version)
       # Download and install the IBM Java build
       download_build(entry, java_home, version)
+      installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
+      properties = File.join(Dir.tmpdir, "installer.properties")
       cleanup_files(properties, installer)
     end
 

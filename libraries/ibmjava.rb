@@ -39,8 +39,7 @@ module TravisJava
         mode '0755'
         checksum entry['sha256sum']
         action :create
-        not_if "test -f #{installer}"
-        notifies :create, 'file[#{properties}]', :immediately
+        not_if "test -f #{installer}"        
       end
 
       # Create installer properties for silent installation
@@ -56,7 +55,7 @@ module TravisJava
       execute 'install java' do
         command "#{installer} -i silent -f #{properties}"
         action :nothing
-      end      
+      end
     end
 
     def cleanup_files(properties, installer)

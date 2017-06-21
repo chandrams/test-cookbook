@@ -9,18 +9,16 @@ module TravisJava
       attribute_key = "ibmjava" + version.to_s
       java_home = ::File.join(node['travis_java']['jvm_base_dir'], node['travis_java'][attribute_key]['jvm_name'])
       arch = node['travis_java']['arch']
-      if arch == "amd64" then
-        arch = "x86_64"
-      end
+      arch = "x86_64" if arch == "amd64"
       index_yml = ::File.join("https://public.dhe.ibm.com/ibmdl/export/pub/systems/cloud/runtimes/java/meta/sdk",
                               node['travis_java']['ibmjava']['platform'], arch, "index.yml")
 
       # Obtain the uri of the latest IBM Java build for the specified version from index.yml
       entry = find_version_entry(index_yml, version)
-      
+
       installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
       properties = File.join(Dir.tmpdir, "installer.properties")
-        
+
       # Download and install the IBM Java build
       download_build(entry, installer, properties)
       # Verify checksum
@@ -50,14 +48,14 @@ module TravisJava
     end
       
     def install_build(entry, java_home, properties, installer)
-      
+
       # Create installer properties for silent installation
       file properties do
         content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
         action :nothing
         notifies :run, 'execute[install java]', :immediately
       end
-      
+
       # Install IBM Java build
       execute 'install java' do
         command "#{installer} -i silent -f #{properties}"
@@ -65,7 +63,7 @@ module TravisJava
         notifies :delete, 'file[#{properties}]', :immediately
         notifies :delete, 'file[#{installer}]', :immediately
       end
-      
+
       execute "#{java_home}/bin/java -version"
 
       file properties do
@@ -92,10 +90,10 @@ module TravisJava
       end
       finalversion
     end
-    
+
     def check_sha(file, checksum)
       sha256 = Digest::SHA256.hexdigest(File.read(file))
       raise 'sha256 checksum does not match' unless sha256 == checksum
-    end    
+    end
   end
-end  
+end

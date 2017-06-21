@@ -31,11 +31,11 @@ module TravisJava
     def download_build(entry, java_home, version)
       installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
       properties = File.join(Dir.tmpdir, "installer.properties")
-      
+
       # Create installer properties for silent installation
       file properties do
         content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
-        action :create        
+        action :create
       end
 
       # Download the IBM Java installer from source url to the local machine
@@ -47,7 +47,7 @@ module TravisJava
         action :create
         not_if "test -f #{installer}"
         notifies :run, 'execute[install java]', :immediately
-      end      
+      end
 
       # check_sha(installer, entry['sha256sum'])
 

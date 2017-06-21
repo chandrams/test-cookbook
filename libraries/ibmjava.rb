@@ -31,12 +31,6 @@ module TravisJava
     def download_build(entry, java_home, version)
       installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
       properties = File.join(Dir.tmpdir, "installer.properties")
-      
-      # Create installer properties for silent installation
-      file properties do
-        content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
-        action :create        
-      end
 
       # Download the IBM Java installer from source url to the local machine
       remote_file installer do
@@ -45,9 +39,16 @@ module TravisJava
         mode '0755'
         checksum entry['sha256sum']
         action :create
-        not_if "test -f #{installer}"   
+        not_if "test -f #{installer}"
+        notifies :create, 'file[#{properties}]', :immediately
+      end
+
+      # Create installer properties for silent installation
+      file properties do
+        content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
+        action :nothing
         notifies :run, 'execute[install java]', :immediately
-      end      
+      end
 
       # check_sha(installer, entry['sha256sum'])
 
@@ -55,11 +56,7 @@ module TravisJava
       execute 'install java' do
         command "#{installer} -i silent -f #{properties}"
         action :nothing
-        # notifies :delete, 'file[#{properties}]', :immediately
-        # notifies :delete, 'file[#{installer}]', :immediately
-      end
-
-      execute "#{java_home}/bin/java -version"
+      end      
     end
 
     def cleanup_files(properties, installer)

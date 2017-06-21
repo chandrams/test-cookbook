@@ -15,16 +15,9 @@ module TravisJava
 
       # Obtain the uri of the latest IBM Java build for the specified version from index.yml
       entry = find_version_entry(index_yml, version)
-
-      installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
-      properties = File.join(Dir.tmpdir, "installer.properties")
-
       # Download and install the IBM Java build
-      download_build(entry, installer, properties)
-      # Verify checksum
-      check_sha(installer, entry['sha256sum'])
-      # Install build
-      install_build(entry, java_home, properties, installer)        
+      download_build(entry, java_home, version)
+      cleanup_files(properties, installer)
     end
 
     # This method downloads and installs the java build
@@ -33,7 +26,9 @@ module TravisJava
     # @param [String] version - java version
     # @return - None
 
-    def download_build(entry, installer, properties)  
+    def download_build(entry, java_home, version)
+      installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
+      properties = File.join(Dir.tmpdir, "installer.properties")
 
       # Download the IBM Java installer from source url to the local machine
       remote_file installer do
@@ -44,10 +39,7 @@ module TravisJava
         action :create
         not_if "test -f #{installer}"
         notifies :create, 'file[#{properties}]', :immediately
-      end    
-    end
-      
-    def install_build(entry, java_home, properties, installer)
+      end
 
       # Create installer properties for silent installation
       file properties do
@@ -56,22 +48,26 @@ module TravisJava
         notifies :run, 'execute[install java]', :immediately
       end
 
+      check_sha(installer, entry['sha256sum'])
+
       # Install IBM Java build
       execute 'install java' do
         command "#{installer} -i silent -f #{properties}"
         action :nothing
-        notifies :delete, 'file[#{properties}]', :immediately
-        notifies :delete, 'file[#{installer}]', :immediately
+        # notifies :delete, 'file[#{properties}]', :immediately
+        # notifies :delete, 'file[#{installer}]', :immediately
       end
 
       execute "#{java_home}/bin/java -version"
+    end
 
+    def cleanup_files(properties, installer)
       file properties do
-        action :nothing
+        action :delete
       end
-      
+
       file installer do
-        action :nothing
+        action :delete
       end
     end
 

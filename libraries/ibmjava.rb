@@ -39,26 +39,35 @@ module TravisJava
         checksum entry['sha256sum']
         action :create
         not_if "test -f #{installer}"
-      end
-
-      check_sha(installer, entry['sha256sum'])
+        notifies: create, 'file[properties]', :immediately
+      end      
       
       # Create installer properties for silent installation
       file properties do
         content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
+        action :nothing
+        notifies :run, 'execute[install java]', :immediately
       end
+      
+      check_sha(installer, entry['sha256sum'])
 
       # Install IBM Java build
-      execute "#{installer} -i silent -f #{properties}"
+      execute 'install java' do
+        command "#{installer} -i silent -f #{properties}"
+        action :nothing
+        notifies :delete, 'file[#{properties}]', :immediately
+        notifies :delete, 'file[#{installer}]', :immediately
+      end
+      
       execute "#{java_home}/bin/java -version"
 
       file properties do
         action :delete
       end
       
-      # file installer do
-      #  action :delete
-      # end
+      file installer do
+        action :delete
+      end
     end
 
     # This method returns a hash containing the uri and checksum of the latest release by parsing the index.yml file

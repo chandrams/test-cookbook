@@ -93,6 +93,7 @@ module TravisJava
     end
     
     def check_sha(file, checksum)
+      execute "ls /tmp"
       sha256 = Digest::SHA256.hexdigest(File.read(file))
       puts sha256
       puts checksum

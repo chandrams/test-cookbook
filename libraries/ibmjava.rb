@@ -48,7 +48,7 @@ module TravisJava
         notifies :run, 'execute[install java]', :immediately
       end
 
-      check_sha(installer, entry['sha256sum'])
+      # check_sha(installer, entry['sha256sum'])
 
       # Install IBM Java build
       execute 'install java' do

@@ -39,7 +39,7 @@ module TravisJava
         checksum entry['sha256sum']
         action :create
         not_if "test -f #{installer}"
-        notifies: create, 'file[properties]', :immediately
+        notifies: create, 'file[#{properties}]', :immediately
       end      
       
       # Create installer properties for silent installation

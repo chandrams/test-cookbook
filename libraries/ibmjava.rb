@@ -25,6 +25,7 @@ module TravisJava
       download_build(entry, installer, properties)
       # Verify checksum
       check_sha(installer, entry['sha256sum'])
+      # Install build
       install_build(entry, java_home, properties, installer)        
     end
 
@@ -93,10 +94,7 @@ module TravisJava
     end
     
     def check_sha(file, checksum)
-      execute "ls /tmp"
       sha256 = Digest::SHA256.hexdigest(File.read(file)) unless File.exist?(file)
-      puts sha256
-      puts checksum
       raise 'sha256 checksum does not match' unless sha256 == checksum
     end    
   end

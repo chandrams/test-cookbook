@@ -24,13 +24,12 @@ before_install:
   - sudo usermod -p "`openssl passwd -1 'travis'`" travis
   - gem install kitchen-inspec
   - gem install berkshelf
-  - kitchen init
+  
 
 script:
   - chef -v
   - kitchen -v
-  - chef gem list inspec
-  - bundle exec kitchen verify ubuntu
+  - bundle exec kitchen verify
   - ls /usr/lib/jvm
   - /usr/lib/jvm/java-8-ibm-amd64/bin/java -version
   - /usr/lib/jvm/java-9-ibm-amd64/bin/java -version

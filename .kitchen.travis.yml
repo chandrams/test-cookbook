@@ -20,7 +20,11 @@ suites:
   - name: ibmjava8
     run_list:
       recipe[test::ibmjava8]
+    attributes: { travis_java: { ibmjava8: { pinned_release: '1.8.0_sr4fp6' }}}
   - name: ibmjava9
     run_list:
       recipe[test::ibmjava9]
+  - name: jdkswitcher
+    run_list:
+      recipe[test::jdk_switcher]
       

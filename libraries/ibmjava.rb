@@ -1,25 +1,27 @@
 require 'yaml'
 require 'open-uri'
 require 'fileutils'
-require 'digest'
 
 module TravisJava
   module IBMJava
     def install_ibmjava(version)
       attribute_key = "ibmjava" + version.to_s
       java_home = ::File.join(node['travis_java']['jvm_base_dir'], node['travis_java'][attribute_key]['jvm_name'])
+      pinned_release = node['travis_java'][attribute_key]['pinned_release']
       arch = node['travis_java']['arch']
       arch = "x86_64" if arch == "amd64"
       index_yml = ::File.join("https://public.dhe.ibm.com/ibmdl/export/pub/systems/cloud/runtimes/java/meta/sdk",
                               node['travis_java']['ibmjava']['platform'], arch, "index.yml")
 
       # Obtain the uri of the latest IBM Java build for the specified version from index.yml
-      entry = find_version_entry(index_yml, version)
+      if pinned_release
+        entry = find_version_entry(index_yml, pinned_release)
+      else
+        entry = find_version_entry(index_yml, version)
+      end
+
       # Download and install the IBM Java build
       download_build(entry, java_home, version)
-      installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
-      properties = File.join(Dir.tmpdir, "installer.properties")
-      cleanup_files(properties, installer)
     end
 
     # This method downloads and installs the java build
@@ -45,26 +47,27 @@ module TravisJava
         mode '0755'
         checksum entry['sha256sum']
         action :create
-        not_if "test -f #{installer}"
-        notifies :run, 'execute[install java]', :immediately
       end
-
-      # check_sha(installer, entry['sha256sum'])
 
       # Install IBM Java build
-      execute 'install java' do
-        command "#{installer} -i silent -f #{properties}"
-        action :nothing
-      end
-    end
+      execute "#{installer} -i silent -f #{properties}"
 
-    def cleanup_files(properties, installer)
       file properties do
         action :delete
       end
 
       file installer do
         action :delete
+      end
+
+      link "#{java_home}/jre/lib/security/cacerts" do
+        to '/etc/ssl/certs/java/cacerts'
+        not_if { version > 8 }
+      end
+
+      link "#{java_home}/lib/security/cacerts" do
+        to '/etc/ssl/certs/java/cacerts'
+        not_if { version <= 8 }
       end
     end
 
@@ -82,11 +85,6 @@ module TravisJava
         finalversion = entry[1] if entry[0].to_s.start_with?(version.to_s)
       end
       finalversion
-    end
-
-    def check_sha(file, checksum)
-      sha256 = Digest::SHA256.hexdigest(File.read(file))
-      raise 'sha256 checksum does not match' unless sha256 == checksum
     end
   end
 end

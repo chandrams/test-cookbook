@@ -25,12 +25,16 @@ before_install:
   
 
 script:
+  - rm /opt/jdk_switcher/jdk_switcher.sh
+  - ls -l /opt/jdk_switcher
   - bundle exec kitchen verify
   - ls /usr/lib/jvm
   - /usr/lib/jvm/java-8-ibm-amd64/bin/java -version
   - /usr/lib/jvm/java-9-ibm-amd64/bin/java -version
   - ls /tmp
+  
+  
 
 branches:
   only:
-  - test-branch1 
+  - test-branch3

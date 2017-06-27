@@ -8,18 +8,26 @@ module TravisJava
     def install_ibmjava(version)
       attribute_key = "ibmjava" + version.to_s
       java_home = ::File.join(node['travis_java']['jvm_base_dir'], node['travis_java'][attribute_key]['jvm_name'])
+      pinned_release = node['travis_java'][attribute_key]['pinned_release']
       arch = node['travis_java']['arch']
       arch = "x86_64" if arch == "amd64"
       index_yml = ::File.join("https://public.dhe.ibm.com/ibmdl/export/pub/systems/cloud/runtimes/java/meta/sdk",
                               node['travis_java']['ibmjava']['platform'], arch, "index.yml")
 
       # Obtain the uri of the latest IBM Java build for the specified version from index.yml
-      entry = find_version_entry(index_yml, version)
+      if pinned_release
+        entry = find_version_entry(index_yml, pinned_release)
+      else
+        entry = find_version_entry(index_yml, version)
+      end
+
       # Download and install the IBM Java build
-      download_build(entry, java_home, version)
-      installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
-      properties = File.join(Dir.tmpdir, "installer.properties")
-      cleanup_files(properties, installer)
+      install_build(entry, java_home, version)
+
+      # Delete IBM Java installable and installer properties file
+      delete_files(version)
+
+      link_cacerts(java_home, version)
     end
 
     # This method downloads and installs the java build
@@ -28,15 +36,10 @@ module TravisJava
     # @param [String] version - java version
     # @return - None
 
-    def download_build(entry, java_home, version)
+    def install_build(entry, java_home, version)
       installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
-      properties = File.join(Dir.tmpdir, "installer.properties")
-
-      # Create installer properties for silent installation
-      file properties do
-        content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
-        action :create
-      end
+      properties = File.join(Dir.tmpdir, "installer" + version.to_s + ".properties")
+      expected_checksum = entry['sha256sum']
 
       # Download the IBM Java installer from source url to the local machine
       remote_file installer do
@@ -45,20 +48,55 @@ module TravisJava
         mode '0755'
         checksum entry['sha256sum']
         action :create
-        not_if "test -f #{installer}"
-        notifies :run, 'execute[install java]', :immediately
+        notifies :run, "ruby_block[Verify Checksum of #{installer} file]", :immediately
       end
 
-      # check_sha(installer, entry['sha256sum'])
+      # Verify Checksum of the downloaded IBM Java build
+      ruby_block "Verify Checksum of #{installer} file" do
+        block do
+          checksum = Digest::SHA256.hexdigest(File.read(installer))
+          if checksum != expected_checksum
+            raise "Checksum of the downloaded IBM Java build #{checksum} does not match the expected checksum #{expected_checksum}"
+	  else
+	   puts "Checksum of #{installer} file Verified Successfully!"
+          end
+        end
+        action :nothing
+      end
+
+      # Create installer properties for silent installation
+      file "Create installer properties file - #{properties}" do
+        path properties
+        content "INSTALLER_UI=silent\nUSER_INSTALL_DIR=#{java_home}\nLICENSE_ACCEPTED=TRUE\n"
+        action :create
+      end
 
       # Install IBM Java build
-      execute 'install java' do
+      execute "Install IBM Java#{version} build" do
         command "#{installer} -i silent -f #{properties}"
-        action :nothing
+        action :run
       end
     end
 
-    def cleanup_files(properties, installer)
+    def link_cacerts(java_home, version)
+      link "#{java_home}/jre/lib/security/cacerts" do
+        to '/etc/ssl/certs/java/cacerts'
+        not_if { version > 8 }
+      end
+
+      link "#{java_home}/lib/security/cacerts" do
+        to '/etc/ssl/certs/java/cacerts'
+        not_if { version <= 8 }
+      end
+    end
+
+    # This method deletes the IBM Java installable and installer properties files
+    # @param [String] version - java version
+    # @return - None
+
+    def delete_files(version)
+      installer = File.join(Dir.tmpdir, "ibmjava" + version.to_s + "-installer")
+      properties = File.join(Dir.tmpdir, "installer" + version.to_s + ".properties")
       file properties do
         action :delete
       end
@@ -82,11 +120,6 @@ module TravisJava
         finalversion = entry[1] if entry[0].to_s.start_with?(version.to_s)
       end
       finalversion
-    end
-
-    def check_sha(file, checksum)
-      sha256 = Digest::SHA256.hexdigest(File.read(file))
-      raise 'sha256 checksum does not match' unless sha256 == checksum
     end
   end
 end

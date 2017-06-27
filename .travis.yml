@@ -25,12 +25,38 @@ before_install:
   
 
 script:
+  - rm /opt/jdk_switcher/jdk_switcher.sh
   - bundle exec kitchen verify
   - ls /usr/lib/jvm
   - /usr/lib/jvm/java-8-ibm-amd64/bin/java -version
-  - /usr/lib/jvm/java-9-ibm-amd64/bin/java -version
   - ls /tmp
+  - ls -l /etc/alternatives
+  - . /opt/jdk_switcher/jdk_switcher.sh
+  - jdk_switcher use ibmjava8
+  - java -version
+  - ls -l /etc/alternatives
+  - ls /opt/jdk_switcher
+  - jdk_switcher home ibmjdk8
+  - jdk_switcher use oraclejdk8
+  - java -version
+  - ls -l /etc/alternatives
+  - jdk_switcher home ibmjdk8
+  - jdk_switcher use ibmjdk8
+  - java -version
+  - ls -l /etc/alternatives
+  - jdk_switcher use oraclejdk9
+  - java -version
+  - jdk_switcher use ibmjdk8
+  - java -version
+  - which java
+  - which rmiregistry
+  - ls -l /etc/alternatives/rmiregistry
+  
+
+
+  
+  
 
 branches:
   only:
-  - test-branch1 
+  - test-branch2

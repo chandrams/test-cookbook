@@ -20,7 +20,7 @@ suites:
   - name: ibmjava8
     run_list:
       recipe[test::ibmjava8]
-  - name: ibmjava9
+  - name: openjdk8 
     run_list:
-      recipe[test::ibmjava9]
+      recipe[test::openjdk8_openj9]
       

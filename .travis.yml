@@ -32,8 +32,7 @@ script:
   - chef gem list inspec
   - bundle exec kitchen verify ubuntu
   - ls /usr/lib/jvm
-  - /usr/lib/jvm/java-8-ibm-amd64/bin/java -version
-  - /usr/lib/jvm/java-9-ibm-amd64/bin/java -version
+  - /usr/lib/jvm/openjdk8-openj9-amd64/bin/java -version
   - ls /tmp
 
 branches:
